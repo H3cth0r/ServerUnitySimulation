@@ -1,39 +1,49 @@
 from flask import Flask, request, jsonify
 import os
+import mesa as ms
+from Models import *
+from Agents import *
+import matplotlib.pyplot as plt
 
 # Flask code
 app	= Flask("CrossRoadSimulation", static_url_path="")
 port	= int(os.getenv("PORT", 8000))
 
+# Mesa model
+model = CrossroadModel(nCars=3, types={"t2": 0.34}, smartTLs=0)
+
 # JSON car position structure
-getCarPosition	= lambda carObject	: {"carId"	: str(  carObject.carId),
-					   "x"		: float(carObject.x),
-					   "y"		: float(carObject.y),
-					   "z"		: float(carObject.z)}
+getCarData = lambda carObject	: {"carId"	: str(carObject.unique_id),
+					   "x"		: float(carObject.pos[0]),
+					   "y"		: float(carObject.pos[1]),
+					   "dir"	: carObject.getDirectionInt()}
 
-getCarPositions	= lambda carObjects : jsonify({"positions":[getCarPosition(obj) for obj in carObjects]})
+getTFLData = lambda TFLObject	: {"tflId"	: str(TFLObject.unique_id),
+					   "light"	: TFLObject.light}
 
-# Example car class
-class TheCar:
-	def __init__(self, carId_t, x_t, y_t, z_t):
-		self.carId	= carId_t
-		self.x		= x_t
-		self.y		= y_t
-		self.z		= z_t
+getStepData	= lambda m : jsonify({
+		"step":m.schedule.steps,
+		"cars":[getCarData(agent) for agent in m.schedule.agents if isinstance(agent, CarAgent)],
+		"tfls":[getTFLData(agent) for agent in m.schedule.agents if isinstance(agent, TrafficLightAgent) or isinstance(agent, ScheduledTrafficLightAgent)]})
 
 # Method for initializing the simulation
 @app.route("/init", methods=["POST", "GET"])
 def startingConfiguration():
-	cobs = []
+	model.step()
 	if request.method == "GET":
-		# Initialize the simulation and send initial positions
-		for i in range(0, 10):
-			cobs.append(TheCar(i, i, i, i))
-		cars = getCarPositions(cobs)
-		return cars
+		print([getTFLData(agent) for agent in model.schedule.agents if isinstance(agent, TrafficLightAgent)])
+		return getStepData(model)
 	elif request.method == "POST":
 		return "Use get method"
-		
+	
+# Method for initializing the simulation
+@app.route("/step", methods=["POST", "GET"])
+def getStep():
+	model.step()
+	if request.method == "GET":
+		return getStepData(model)
+	elif request.method == "POST":
+		return "Use get method"
 
 # Server start
 if __name__=='__main__':
