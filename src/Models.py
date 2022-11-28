@@ -150,12 +150,12 @@ class CrossroadModel(ms.Model):
         
         for x in range(34):
             for y in range(34):
-                pasto = GrassAgent(self.counter, self)
+                pasto = GrassAgent(0, self)
                 if (x >= 0 and x < 15) and ((y >= 0 and y < 15) or y>=19 and y < 34):
                     self.grid.place_agent(pasto, (x, y))
                 elif (x >= 19 and x < 232) and ((y>=0 and y < 15) or y>= 19 and y < 34):
                     self.grid.place_agent(pasto, (x, y))
-                self.counter += 1
+                
         
         self.datacollector = ms.DataCollector(
             model_reporters={

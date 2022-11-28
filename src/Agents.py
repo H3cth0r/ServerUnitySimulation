@@ -3,6 +3,11 @@ from math import ceil
 from Models import *
 from random import choice, randrange, random, randint
 
+# TODO / IMPROVEMENTS
+# Graphs
+# Yellow light
+# Priority for waiting cars
+
 class GrassAgent(ms.Agent):
     def __init__(self, id_t, model):
         super().__init__(id_t, model)
@@ -44,6 +49,8 @@ class TrafficLightAgent(ms.Agent):
         self.localArrival = ()
         self.globalArrivals = {}
         self.tfs = {}
+        self.maxGreenTime = 20
+        self.greenCounter = 0
         new_pos = (17, 14)
         self.nextArrival = (-1, 100000, -1)
 
@@ -201,11 +208,13 @@ class TrafficLightAgent(ms.Agent):
         #print(f"TFL: {self.lane}, STAGE ONE")
         #check if self should still be green
         if self.light == 2:
-            self.counterStepsBeingGreen += 1
-            if self.hasTheCarPassed():
-
+            if self.hasTheCarPassed() or self.greenCounter == self.maxGreenTime:
                 #maybe wait x steps in yellow?
                 self.light = 1
+                self.greenCounter = 0
+            else:
+                self.counterStepsBeingGreen += 1
+                self.greenCounter += 1
         else:
             self.counterStepsBeingGreen = 0
         
@@ -407,7 +416,7 @@ class CarAgent(ms.Agent):
     def move(self):
         # TFL = self.checkTrafficLight()
         distanceFromNextCar = self.checkCarFront()
-        print(f"Car: {self.unique_id}, direction: {self.direction}, type: {self.type}, dist from next car: {distanceFromNextCar}")
+        print(f"Car: {self.unique_id}, direction: {self.direction}, type: {self.type}, dist from next car: {distanceFromNextCar}, dist left: {self.distLeft}")
         print(f"Starting velocity: {self.velocity}")
 
         if (self.type == 4 and random() < 0.25):
@@ -429,7 +438,7 @@ class CarAgent(ms.Agent):
                     self.velocity = 0
             else:
                 self.velocity = 1"""
-        elif (self.distLeft <= self.velocity + self.carefullnessMod and ((self.TFL.light == 0) or (self.TFL.light == 1))):
+        elif (self.distLeft >= 0 and self.distLeft <= self.velocity + self.carefullnessMod and ((self.TFL.light == 0) or (self.TFL.light == 1))):
             print("At considerable distance from red/yellow light")
             if self.type == 2:
                 self.velocity += 1
@@ -439,8 +448,10 @@ class CarAgent(ms.Agent):
                 else:
                     self.velocity = ceil(self.velocity/2)
         elif (self.type == 3 and self.distLeft <= self.velocity and self.TFL.light == 2):
-            self.velocity = ceil(self.velocity/2)
-            self.distLeft -= self.velocity
+            if self.velocity == 0:
+                self.velocity = 1
+            else:
+                self.velocity = ceil(self.velocity/2)
         else:
             if self.velocity < self.desiredVelocity:
                 self.velocity += 1

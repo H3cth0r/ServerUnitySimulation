@@ -28,7 +28,7 @@ chart_currents = ms.visualization.ChartModule(
 	data_collector_name="datacollector"
 )
 
-server = ms.visualization.ModularServer(CrossroadModel, [grid, chart_currents], "Crossroad Model", {"nCars":4, "typesChance": 0.06, "smartTLs":True})
+server = ms.visualization.ModularServer(CrossroadModel, [grid, chart_currents], "Crossroad Model", {"nCars":4, "typesChance": 0.06, "smartTLs":True, "stepsToIncrement":30})
 server.port = 8521
 server.launch()
 

@@ -10,7 +10,7 @@ app	= Flask("CrossRoadSimulation", static_url_path="")
 port	= int(os.getenv("PORT", 8000))
 
 # Mesa model
-model = CrossroadModel(nCars=3, types={"t2": 0.34}, smartTLs=0)
+model = CrossroadModel(nCars = 4, typesChance = 0.06, smartTLs = True, stepsToIncrement = 30)
 
 # JSON car position structure
 getCarData = lambda carObject	: {"carId"	: str(carObject.unique_id),
