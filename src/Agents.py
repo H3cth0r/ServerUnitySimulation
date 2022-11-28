@@ -66,17 +66,17 @@ class TrafficLightAgent(ms.Agent):
     def checkLane(self, start, end):
         if self.lane == 0 or self.lane == 1:
             while(start[1] != end[1]):
-                print(f"checking cells {[start, (end[0], start[1])]}")
+                #print(f"checking cells {[start, (end[0], start[1])]}")
                 current_cells = self.model.grid.get_cell_list_contents([start, (end[0], start[1])])
                 car = None
                 maxVel = -1
-                print(f"agents in cells: {current_cells}")
+                #print(f"agents in cells: {current_cells}")
                 for obj in current_cells:
                     if isinstance(obj, CarAgent) and obj.velocity > maxVel:
                         car = obj
                         maxVel = obj.velocity
                 if maxVel != -1:
-                    print(f"returning agent: {car.unique_id}")
+                    #print(f"returning agent: {car.unique_id}")
                     return car
                 if self.lane == 0:
                     start = (start[0], start[1]-1)
@@ -141,14 +141,14 @@ class TrafficLightAgent(ms.Agent):
     def checkBacklane(self, start, end):
         if self.lane == 0 or self.lane == 1:
             while(start[1] != end[1]):
-                print(f"checking cells {[start, (end[0], start[1])]}")
+                #print(f"checking cells {[start, (end[0], start[1])]}")
                 current_cells = self.model.grid.get_cell_list_contents([start, (end[0], start[1])])
-                print(current_cells)
+                #print(current_cells)
                 for obj in current_cells:
-                    print(f"found object {obj.unique_id}")
-                    print(f"nextArrival: {self.nextArrival[0]}")
+                    #print(f"found object {obj.unique_id}")
+                    #print(f"nextArrival: {self.nextArrival[0]}")
                     if isinstance(obj, CarAgent) and obj.unique_id == self.nextArrival[0]:
-                        print("Car passed")
+                        #print("Car passed")
                         return True
                 if self.lane == 0:
                     start = (start[0], start[1]+1)
@@ -197,8 +197,8 @@ class TrafficLightAgent(ms.Agent):
         return nextCar
 
     def stage_one(self):
-        print("---")
-        print(f"TFL: {self.lane}, STAGE ONE")
+        #print("---")
+        #print(f"TFL: {self.lane}, STAGE ONE")
         #check if self should still be green
         if self.light == 2:
             self.counterStepsBeingGreen += 1
@@ -221,13 +221,13 @@ class TrafficLightAgent(ms.Agent):
         elif self.light != 2:
             self.nextArrival = (-1, 100000, -1)
         
-        print(f"TFL: {self.lane}, nextArrival: {self.nextArrival}")
+        #print(f"TFL: {self.lane}, nextArrival: {self.nextArrival}")
         # if nextCar.pos == (self.pos[0], self.pos[1])
 
     def stage_two(self):
         #change global arrivals
-        print("---")
-        print(f"TFL: {self.lane}, STAGE TWO, light: {self.light}")
+        #print("---")
+        #print(f"TFL: {self.lane}, STAGE TWO, light: {self.light}")
         greenLane = -1
         maxPriority = -1
         nextGlobalArrival = (-1, 100000, -1)
@@ -236,12 +236,12 @@ class TrafficLightAgent(ms.Agent):
                 greenLane = tf.lane
                 nextGlobalArrival = tf.nextArrival 
                 break
-            print(f"Comparing {tf.nextArrival} to {nextGlobalArrival}")
+            #print(f"Comparing {tf.nextArrival} to {nextGlobalArrival}")
             if tf.nextArrival[1] < nextGlobalArrival[1]:
                 nextGlobalArrival = tf.nextArrival
             
-        print(f"Next global arrival: {nextGlobalArrival}")
-        print(f"greenLane: {greenLane}, nextGlobalArrival: {nextGlobalArrival}, self.lane: {self.lane}")
+        #print(f"Next global arrival: {nextGlobalArrival}")
+        #print(f"greenLane: {greenLane}, nextGlobalArrival: {nextGlobalArrival}, self.lane: {self.lane}")
         # if there's no cars, then nextGlobalArrival[0] == -1
         if nextGlobalArrival[0] == -1:
             self.light = 1
@@ -250,10 +250,10 @@ class TrafficLightAgent(ms.Agent):
         # ideally, we should wait until prior greenlight turns red
         elif self.light == 2 or (greenLane == -1 and nextGlobalArrival[2] == self.lane):
             self.light = 2
-            print(f"CHANGED {self.lane} LIGHT TO {self.light}")
+            #print(f"CHANGED {self.lane} LIGHT TO {self.light}")
         else:
             self.light = 0
-            print(f"CHANGED {self.lane} LIGHT TO {self.light}")
+            #print(f"CHANGED {self.lane} LIGHT TO {self.light}")
 
         #change lights
         #choices = [0, 1, 2]
@@ -340,73 +340,97 @@ class CarAgent(ms.Agent):
             return TFL
 
     def checkCarFront(self, dist_t = -1):
-        isACar = False
+        print(f"Looking for cars, from car : {self.unique_id}, pos: {self.pos}")
         if dist_t == -1:
             dist_t = self.velocity
         
+        if dist_t == 0:
+            dist_t = 1
+
+        for i in range(1, dist_t+1):
+            print(f"In distance: {i}")
+            currCell = (self.pos[0] + i*self.direction[0], self.pos[1] + i*self.direction[1])
+            print(f"currCell: {currCell}")
+            if currCell[0] > 33 or currCell[0] < 0 or currCell[1] > 33 or currCell[1] < 0:
+                print("Off limits")
+                break
+            CA_cell = self.model.grid.get_cell_list_contents([currCell])
+            for obj in CA_cell:
+                if isinstance(obj, CarAgent):
+                    return i-1
+        
+        return -1
+        """
         if ((self.direction == [1, 0]) and (self.pos[0] < 30)):
             for i in range(dist_t):
-                if self.pos[0]+i+1 < 31:
+                if self.pos[0]+i+1 < 34:
                     CA_cell = self.model.grid.get_cell_list_contents([(self.pos[0]+i+1, self.pos[1])])
                     CA = [obj for obj in CA_cell if isinstance(obj, CarAgent)]
                     if (CA != []):
-                        isACar = True
-                return isACar
+                        distanceFromCar = True
+                return distanceFromCar
         elif ((self.direction == [0, 1]) and (self.pos[1] < 30)):
             for i in range(dist_t):
-                if self.pos[1]+i+1 < 31:
+                if self.pos[1]+i+1 < 34:
                     CA_cell = self.model.grid.get_cell_list_contents([(self.pos[0], self.pos[1]+i+1)])
                     CA = [obj for obj in CA_cell if isinstance(obj, CarAgent)]
                     if (CA != []):
-                        isACar = True
-                return isACar
+                        distanceFromCar = True
+                return distanceFromCar
         elif ((self.direction == [-1, 0]) and (self.pos[0] >= 3)):
             for i in range(dist_t):
                 CA_cell = self.model.grid.get_cell_list_contents([(self.pos[0]-i-1, self.pos[1])])
                 CA = [obj for obj in CA_cell if isinstance(obj, CarAgent)]
                 if (CA != []):
-                    isACar = True
-            return isACar
+                    distanceFromCar = True
+            return distanceFromCar
         elif ((self.direction == [0, -1]) and (self.pos[1] >= 3)): # [0, -1]
             for i in range(dist_t):
                 CA_cell = self.model.grid.get_cell_list_contents([(self.pos[0], self.pos[1]-i-1)])
                 CA = [obj for obj in CA_cell if isinstance(obj, CarAgent)]
                 if (CA != []):
-                    isACar = True
-            return isACar
+                    distanceFromCar = True
+            return distanceFromCar
         else:
-            return isACar
-        
-        return isACar
+            return distanceFromCar
+        """
 
 
     def move(self):
         # TFL = self.checkTrafficLight()
-        nextcar = self.checkCarFront()
-        # print(f"Car: {self.unique_id}, direction: {self.direction}, type: {self.type}, nextCar: {nextcar}")
-        # print(self.velocity)
-
-        if (nextcar == True):
+        distanceFromNextCar = self.checkCarFront()
+        print(f"Car: {self.unique_id}, direction: {self.direction}, type: {self.type}, dist from next car: {distanceFromNextCar}")
+        print(f"Starting velocity: {self.velocity}")
+        
+        
+        if (distanceFromNextCar != -1 and not (self.distLeft - distanceFromNextCar < 0)):
+            # car in front is worth considering
+            print("Car in front is worth considering")
             # print(f"The velocity is: {self.velocity}")
+            self.velocity = distanceFromNextCar
+            print(f"New velocity: {self.velocity}")
+            """
             if self.velocity <= 2:
                 if self.velocity == 2:
                     self.velocity = 1
                 else:
                     self.velocity = 0
             else:
-                self.velocity = 1
-        elif (self.distLeft >= 0 and ((self.TFL.light == 0) or (self.TFL.light == 1))):
+                self.velocity = 1"""
+        elif (self.distLeft <= self.velocity + self.carefullnessMod and ((self.TFL.light == 0) or (self.TFL.light == 1))):
+            print("At considerable distance from red/yellow light")
             if self.type == 2:
                 self.velocity += 1
             else:
                 if self.distLeft == 0:
                     self.velocity = 0
-                elif self.distLeft <= self.velocity + self.carefullnessMod:
+                else:
                     self.velocity = ceil(self.velocity/2)
         else:
-            if self.velocity <  self.desiredVelocity:
+            if self.velocity < self.desiredVelocity:
                 self.velocity += 1
 
+        print(f"New velocity: {self.velocity}")
         dx = (self.direction[0] * self.velocity) 
         dy = (self.direction[1] * self.velocity)
 

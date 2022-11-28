@@ -80,29 +80,29 @@ class CrossroadModel(ms.Model):
         self.counter = 4
 
         for i in range(nCars):
-            #direction = choice(self.directions)
-            direction = self.directions[i]
+            direction = choice(self.directions)
+            #direction = self.directions[i]
            
             #up - down - left - right
             distLeft = 14
             if direction[0] == 0:
                 if direction[1] == 1: #going up
-                    startingPos = (18, 0 + self.carsInLane[0])
+                    startingPos = (choice([17, 18]), 0 + self.carsInLane[0])
                     distLeft -= self.carsInLane[0]
                     self.carsInLane[0] += 1
                     trafficLight = TFS_0
                 else: #going down
-                    startingPos = (15, 33 - self.carsInLane[1])
+                    startingPos = (choice([15, 16]), 33 - self.carsInLane[1])
                     distLeft -= self.carsInLane[1]
                     self.carsInLane[1] += 1
                     trafficLight = TFS_1
             elif direction[0] == -1: #going left
-                startingPos = (33 - self.carsInLane[2], 18)
+                startingPos = (33 - self.carsInLane[2], choice([17, 18]))
                 distLeft -= self.carsInLane[2]
                 self.carsInLane[2] += 1
                 trafficLight = TFS_2
             else: #going right
-                startingPos = (0 + self.carsInLane[3], 15)
+                startingPos = (0 + self.carsInLane[3], choice([15, 16]))
                 distLeft -= self.carsInLane[3]
                 self.carsInLane[3] += 1
                 trafficLight = TFS_3
@@ -118,9 +118,25 @@ class CrossroadModel(ms.Model):
             self.grid.place_agent(carro, startingPos)
             self.counter += 1
         
-        carro = CarAgent(self.counter, self, 0, 3, [0, 1], 14, TFS_0, (17, 2))
+        carro = CarAgent(self.counter, self, 0, 3, [0, 1], 12, TFS_0, (17, 2))
         self.schedule.add(carro)
         self.grid.place_agent(carro, (17, 2))
+        self.counter += 1
+        carro = CarAgent(self.counter, self, 0, 3, [0, 1], 11, TFS_0, (17, 3))
+        self.schedule.add(carro)
+        self.grid.place_agent(carro, (17, 3))
+        self.counter += 1
+        carro = CarAgent(self.counter, self, 0, 3, [-1, 0], 6, TFS_2, (25, 17))
+        self.schedule.add(carro)
+        self.grid.place_agent(carro, (25, 17))
+        self.counter += 1
+        carro = CarAgent(self.counter, self, 0, 2, [-1, 0], 6, TFS_2, (25, 18))
+        self.schedule.add(carro)
+        self.grid.place_agent(carro, (25, 18))
+        self.counter += 1
+        carro = CarAgent(self.counter, self, 0, 2, [-1, 0], 6, TFS_2, (27, 17))
+        self.schedule.add(carro)
+        self.grid.place_agent(carro, (27, 17))
         self.counter += 1
         for x in range(34):
             for y in range(34):
