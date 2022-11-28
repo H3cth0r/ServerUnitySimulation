@@ -1,7 +1,7 @@
 import mesa as ms
 from math import ceil
 from Models import *
-from random import choice, randrange
+from random import choice, randrange, random, randint
 
 class GrassAgent(ms.Agent):
     def __init__(self, id_t, model):
@@ -289,6 +289,14 @@ class ScheduledTrafficLightAgent(ms.Agent):
     def stage_three(self):
         pass
 
+"""
+--- CAR AGENT TYPES ---
+(0) No special behaviours. Slows at a decent distance from a red/yellow light
+(1) Carefull type. Will slow down at a further (semi-random) distance from a red/yellow light.
+(2) Unlawful type. Will ignore red lights, and will speed up the closer it is to one.
+(3) Lazy type. Will slow down when crossing the intersection.
+(4) Drunk type. Will change velocity and even full stop at random.
+"""
 class CarAgent(ms.Agent):
     def __init__(self, unique_id, model, type, velocity, direction, distLeft, trafficLight, initPos):
         super().__init__(unique_id, model)
@@ -401,9 +409,13 @@ class CarAgent(ms.Agent):
         distanceFromNextCar = self.checkCarFront()
         print(f"Car: {self.unique_id}, direction: {self.direction}, type: {self.type}, dist from next car: {distanceFromNextCar}")
         print(f"Starting velocity: {self.velocity}")
+
+        if (self.type == 4 and random() < 0.25):
+            self.desiredVelocity = randint(1, 4)
         
-        
-        if (distanceFromNextCar != -1 and not (self.distLeft - distanceFromNextCar < 0)):
+        if (self.type == 4 and random() < 0.1):
+            self.velocity == 0
+        elif (distanceFromNextCar != -1 and not (self.distLeft - distanceFromNextCar < 0)):
             # car in front is worth considering
             print("Car in front is worth considering")
             # print(f"The velocity is: {self.velocity}")
@@ -426,9 +438,14 @@ class CarAgent(ms.Agent):
                     self.velocity = 0
                 else:
                     self.velocity = ceil(self.velocity/2)
+        elif (self.type == 3 and self.distLeft <= self.velocity and self.TFL.light == 2):
+            self.velocity = ceil(self.velocity/2)
+            self.distLeft -= self.velocity
         else:
             if self.velocity < self.desiredVelocity:
                 self.velocity += 1
+            elif self.velocity > self.desiredVelocity:
+                self.velocity -= 1
 
         print(f"New velocity: {self.velocity}")
         dx = (self.direction[0] * self.velocity) 

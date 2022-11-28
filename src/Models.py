@@ -31,7 +31,7 @@ def getCarsStuckInTraffic(model):
     return sum([1 for agent in model.schedule.agents if isinstance(agent, CarAgent) and agent.velocity == 0])
 
 class CrossroadModel(ms.Model):
-    def __init__(self, nCars, types, smartTLs):
+    def __init__(self, nCars, smartTLs, typesChance = 0.06, stepsToIncrement = 0):
         super().__init__()
         #self.schedule = ms.time.BaseScheduler(self)
         self.model_stages = ["stage_one", "stage_two", "stage_three"]
@@ -41,6 +41,7 @@ class CrossroadModel(ms.Model):
         self.reportedCrashes = 0
 
         self.grid = ms.space.MultiGrid(34, 34, torus=True)
+        self.stepsToIncrement = stepsToIncrement
         self.directions = [
             [1,0],
             [0,1],
@@ -48,7 +49,7 @@ class CrossroadModel(ms.Model):
             [0,-1],
         ]
         self.velocities = [1]
-        self.nTypes = {"t2":floor(types["t2"]*nCars)}
+        self.typesChance = typesChance
         if smartTLs:
             # adding traffic light agents to grid
             TFS_0 =   TrafficLightAgent(0, self, 0)
@@ -57,9 +58,9 @@ class CrossroadModel(ms.Model):
             TFS_3 =   TrafficLightAgent(3, self, 3)
 
             # connecting traffic light agents to each other
-            TFS_list = [TFS_0, TFS_1, TFS_2, TFS_3]
-            for tf in TFS_list:
-                tf.setTFS(TFS_list)
+            self.TFS_list = [TFS_0, TFS_1, TFS_2, TFS_3]
+            for tf in self.TFS_list:
+                tf.setTFS(self.TFS_list)
         else:
             TFS_0 =   ScheduledTrafficLightAgent(0, self, 0, 1)
             TFS_1 =   ScheduledTrafficLightAgent(1, self, 1, 7)
@@ -107,9 +108,15 @@ class CrossroadModel(ms.Model):
                 self.carsInLane[3] += 1
                 trafficLight = TFS_3
 
-            if self.nTypes["t2"] > 0:
+            typeRes = random()
+            if typeRes < typesChance:
+                carType = 1
+            elif typeRes < typesChance*2:
                 carType = 2
-                self.nTypes["t2"] -= 1
+            elif typeRes < typesChance*3:
+                carType = 3
+            elif typeRes < typesChance*4:
+                carType = 4
             else:
                 carType = 0
             
@@ -118,6 +125,7 @@ class CrossroadModel(ms.Model):
             self.grid.place_agent(carro, startingPos)
             self.counter += 1
         
+        """
         carro = CarAgent(self.counter, self, 0, 3, [0, 1], 12, TFS_0, (17, 2))
         self.schedule.add(carro)
         self.grid.place_agent(carro, (17, 2))
@@ -138,6 +146,8 @@ class CrossroadModel(ms.Model):
         self.schedule.add(carro)
         self.grid.place_agent(carro, (27, 17))
         self.counter += 1
+        """
+        
         for x in range(34):
             for y in range(34):
                 pasto = GrassAgent(self.counter, self)
@@ -178,4 +188,50 @@ class CrossroadModel(ms.Model):
         print("=================")
         self.datacollector.collect(self)
         self.schedule.step()
+        if (self.stepsToIncrement > 0 and self.schedule.steps%self.stepsToIncrement == 0):
+            # add a new car
+            direction = choice(self.directions)
+            #direction = self.directions[i]
+           
+            #up - down - left - right
+            distLeft = 14
+            if direction[0] == 0:
+                if direction[1] == 1: #going up
+                    startingPos = (choice([17, 18]), 0 + self.carsInLane[0])
+                    distLeft -= self.carsInLane[0]
+                    self.carsInLane[0] += 1
+                    trafficLight = self.TFS_list[0]
+                else: #going down
+                    startingPos = (choice([15, 16]), 33 - self.carsInLane[1])
+                    distLeft -= self.carsInLane[1]
+                    self.carsInLane[1] += 1
+                    trafficLight = self.TFS_list[1]
+            elif direction[0] == -1: #going left
+                startingPos = (33 - self.carsInLane[2], choice([17, 18]))
+                distLeft -= self.carsInLane[2]
+                self.carsInLane[2] += 1
+                trafficLight = self.TFS_list[2]
+            else: #going right
+                startingPos = (0 + self.carsInLane[3], choice([15, 16]))
+                distLeft -= self.carsInLane[3]
+                self.carsInLane[3] += 1
+                trafficLight = self.TFS_list[3]
+
+            typeRes = random()
+            if typeRes < self.typesChance:
+                carType = 1
+            elif typeRes < self.typesChance*2:
+                carType = 2
+            elif typeRes < self.typesChance*3:
+                carType = 3
+            elif typeRes < self.typesChance*4:
+                carType = 4
+            else:
+                carType = 0
+            
+            carro = CarAgent(self.counter, self, carType, choice(self.velocities), direction, distLeft, trafficLight, startingPos)
+            self.schedule.add(carro)
+            self.grid.place_agent(carro, startingPos)
+            self.counter += 1
+
 
