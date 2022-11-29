@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import os
 import mesa as ms
 from Models import *
 from Agents import *
+import pandas as pd
 import matplotlib.pyplot as plt
 
 # Flask code
@@ -36,7 +37,7 @@ def startingConfiguration():
 	elif request.method == "POST":
 		return "Use get method"
 	
-# Method for initializing the simulation
+# Method for getting a step
 @app.route("/step", methods=["POST", "GET"])
 def getStep():
 	model.step()
@@ -44,6 +45,16 @@ def getStep():
 		return getStepData(model)
 	elif request.method == "POST":
 		return "Use get method"
+
+# Showing the plot
+@app.route("/charts", methods=["GET"])
+def showCharts():
+	df = model.datacollector.get_model_vars_dataframe()
+	df[["ServicedCars"]].plot()
+	plt.savefig('static/resources/ServicedCars.png')
+	df[["CarsStuckInTraffic"]].plot()
+	plt.savefig('static/resources/CarsStuckInTraffic.png')
+	return render_template("charts.html")
 
 # Server start
 if __name__=='__main__':
