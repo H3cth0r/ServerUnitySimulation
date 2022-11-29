@@ -13,11 +13,12 @@
     <title>Estadísticas</title>
     
     </head>
-<body style="margin: 0px;">
-    <div id="header">
-
+<body>
+    <div class="chart-div">
+        <img src="{{ url_for('static',filename='resources/ServicedCars.png') }}" alt="ServicedCars">
+        <img src="{{ url_for('static',filename='resources/CarsStuckInTraffic.png') }}" alt="CarsStuckInTraffic">
     </div>
-    <div id="chart-iframe">
-
+    <div class="chart-div">
+        <img src="{{ url_for('static',filename='resources/ReportedCrashes.png') }}" alt="ReportedCrashes">
     </div>
 </body>

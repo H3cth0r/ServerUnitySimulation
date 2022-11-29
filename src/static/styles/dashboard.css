@@ -1,0 +1,14 @@
+#header {
+    height: 10vh;
+}
+
+#chart-iframe {
+    display: flex;
+    justify-content: center;
+}
+
+iframe {
+    height: 115vh;
+    width: 95vw;
+    border: 0px;
+}

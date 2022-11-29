@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="utf-8">
-        <!-- Jquery -->
-        <!--<script src="scripts/anime-master/anime-master/lib/anime.min.js"></script>  
-         crud style -->
-
-        <!-- import crud functionality -->
-    <link rel="stylesheet" href="{{ url_for('static',filename='styles/charts.css') }}">
-    <title>Dashboard</title>
+<head>
     
-    </head>
-<body>
-    <div class="chart-div">
-        <img src="{{ url_for('static',filename='resources/ServicedCars.png') }}" alt="QR Code">
-        <img src="{{ url_for('static',filename='resources/CarsStuckInTraffic.png') }}" alt="QR Code">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <!-- Jquery -->
+    <!--<script src="scripts/anime-master/anime-master/lib/anime.min.js"></script>  
+        crud style -->
+
+    <!-- import crud functionality -->
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/Dashboard.css') }}">
+    <title>Dashboard</title>
+
+</head>
+<body style="margin: 0px;">
+    <div id="header">
+
     </div>
-    <div class="chart-div">
-        <img src="{{ url_for('static',filename='resources/ReportedCrashes.png') }}" alt="QR Code">
+    <div id="chart-iframe">
+        <iframe src="{{url_for('showCharts')}}"></iframe>
     </div>
 </body>

@@ -66,6 +66,7 @@ class CrossroadModel(ms.Model):
             TFS_1 =   ScheduledTrafficLightAgent(1, self, 1, 7)
             TFS_2 =   ScheduledTrafficLightAgent(2, self, 2, 13)
             TFS_3 =   ScheduledTrafficLightAgent(3, self, 3, 19)
+            self.TFS_list = [TFS_0, TFS_1, TFS_2, TFS_3]
 
         #for TFL in TFS:self.schedule.add(TFL)
         self.schedule.add(TFS_0)
@@ -185,7 +186,7 @@ class CrossroadModel(ms.Model):
 
 
     def step(self):
-        print("=================")
+        #print("=================")
         self.datacollector.collect(self)
         self.schedule.step()
         if (self.stepsToIncrement > 0 and self.schedule.steps%self.stepsToIncrement == 0):

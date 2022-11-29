@@ -357,7 +357,7 @@ class CarAgent(ms.Agent):
             return TFL
 
     def checkCarFront(self, dist_t = -1):
-        print(f"Looking for cars, from car : {self.unique_id}, pos: {self.pos}")
+        #print(f"Looking for cars, from car : {self.unique_id}, pos: {self.pos}")
         if dist_t == -1:
             dist_t = self.velocity
         
@@ -365,11 +365,11 @@ class CarAgent(ms.Agent):
             dist_t = 1
 
         for i in range(1, dist_t+1):
-            print(f"In distance: {i}")
+            #print(f"In distance: {i}")
             currCell = (self.pos[0] + i*self.direction[0], self.pos[1] + i*self.direction[1])
-            print(f"currCell: {currCell}")
+            #print(f"currCell: {currCell}")
             if currCell[0] > 33 or currCell[0] < 0 or currCell[1] > 33 or currCell[1] < 0:
-                print("Off limits")
+                #print("Off limits")
                 break
             CA_cell = self.model.grid.get_cell_list_contents([currCell])
             for obj in CA_cell:
@@ -416,8 +416,8 @@ class CarAgent(ms.Agent):
     def move(self):
         # TFL = self.checkTrafficLight()
         distanceFromNextCar = self.checkCarFront()
-        print(f"Car: {self.unique_id}, direction: {self.direction}, type: {self.type}, dist from next car: {distanceFromNextCar}, dist left: {self.distLeft}")
-        print(f"Starting velocity: {self.velocity}")
+        # print(f"Car: {self.unique_id}, direction: {self.direction}, type: {self.type}, dist from next car: {distanceFromNextCar}, dist left: {self.distLeft}")
+        # print(f"Starting velocity: {self.velocity}")
 
         if (self.type == 4 and random() < 0.25):
             self.desiredVelocity = randint(1, 4)
@@ -426,10 +426,10 @@ class CarAgent(ms.Agent):
             self.velocity == 0
         elif (distanceFromNextCar != -1 and not (self.distLeft - distanceFromNextCar < 0)):
             # car in front is worth considering
-            print("Car in front is worth considering")
+            # print("Car in front is worth considering")
             # print(f"The velocity is: {self.velocity}")
             self.velocity = distanceFromNextCar
-            print(f"New velocity: {self.velocity}")
+            #print(f"New velocity: {self.velocity}")
             """
             if self.velocity <= 2:
                 if self.velocity == 2:
@@ -439,7 +439,7 @@ class CarAgent(ms.Agent):
             else:
                 self.velocity = 1"""
         elif (self.distLeft >= 0 and self.distLeft <= self.velocity + self.carefullnessMod and ((self.TFL.light == 0) or (self.TFL.light == 1))):
-            print("At considerable distance from red/yellow light")
+            #print("At considerable distance from red/yellow light")
             if self.type == 2:
                 self.velocity += 1
             else:
@@ -458,7 +458,7 @@ class CarAgent(ms.Agent):
             elif self.velocity > self.desiredVelocity:
                 self.velocity -= 1
 
-        print(f"New velocity: {self.velocity}")
+        # Sprint(f"New velocity: {self.velocity}")
         dx = (self.direction[0] * self.velocity) 
         dy = (self.direction[1] * self.velocity)
 

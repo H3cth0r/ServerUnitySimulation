@@ -59,6 +59,7 @@ def showCharts():
 	return render_template("charts.html")
 
 # Dashboard
+@app.route("/dashboard", methods=["GET"]) 
 def showDashboard():
 	return render_template("dashboard.html")
 
