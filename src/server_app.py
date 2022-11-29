@@ -47,14 +47,20 @@ def getStep():
 		return "Use get method"
 
 # Showing the plot
-@app.route("/charts", methods=["GET"])
+@app.route("/charts", methods=["GET"]) 
 def showCharts():
 	df = model.datacollector.get_model_vars_dataframe()
 	df[["ServicedCars"]].plot()
 	plt.savefig('static/resources/ServicedCars.png')
 	df[["CarsStuckInTraffic"]].plot()
 	plt.savefig('static/resources/CarsStuckInTraffic.png')
+	df[["ReportedCrashes"]].plot()
+	plt.savefig('static/resources/ReportedCrashes.png')
 	return render_template("charts.html")
+
+# Dashboard
+def showDashboard():
+	return render_template("dashboard.html")
 
 # Server start
 if __name__=='__main__':

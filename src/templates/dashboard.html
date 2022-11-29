@@ -10,14 +10,15 @@
 
         <!-- import crud functionality -->
     <link rel="stylesheet" href="{{ url_for('static',filename='styles/charts.css') }}">
-    <title>Estadísticas</title>
+    <title>Dashboard</title>
     
     </head>
-<body style="margin: 0px;">
-    <div id="header">
-
+<body>
+    <div class="chart-div">
+        <img src="{{ url_for('static',filename='resources/ServicedCars.png') }}" alt="QR Code">
+        <img src="{{ url_for('static',filename='resources/CarsStuckInTraffic.png') }}" alt="QR Code">
     </div>
-    <div id="chart-iframe">
-
+    <div class="chart-div">
+        <img src="{{ url_for('static',filename='resources/ReportedCrashes.png') }}" alt="QR Code">
     </div>
 </body>
