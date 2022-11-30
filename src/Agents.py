@@ -4,7 +4,6 @@ from Models import *
 from random import choice, randrange, random, randint
 
 # TODO / IMPROVEMENTS
-# Graphs
 # Yellow light
 # Priority for waiting cars
 
@@ -46,6 +45,7 @@ class TrafficLightAgent(ms.Agent):
         super().__init__(unique_id, model)
         self.lane = lane    #0 = up, 1 = down, 2 = left, 3 = right
         self.light = 1      #0 = red, 1 = yellow, 2 = green
+        self.gracePeriod = 0
         self.localArrival = ()
         self.globalArrivals = {}
         self.tfs = {}
